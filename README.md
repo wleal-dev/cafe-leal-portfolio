@@ -13,7 +13,7 @@
 
 ## Demo ao vivo
 
-**[cafe-leal-portfolio.vercel.app](https://cafe-leal-portfolio.vercel.app)**
+**[cafe-aroma-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
 
 | Usuário | Senha | Acesso |
 |---------|-------|--------|
@@ -65,8 +65,8 @@ Frontend (SPA vanilla) ──► Express REST API ──► PostgreSQL (Supabase
 **Pré-requisitos:** Node.js 14+ e acesso a um PostgreSQL (local ou Supabase).
 
 ```bash
-git clone https://github.com/wleal-dev/cafe-leal-portfolio
-cd cafe-leal-portfolio/backend
+git clone https://github.com/wleal-dev/cafe-aroma-portfolio
+cd cafe-aroma-portfolio/backend
 cp .env.example .env    # ajuste DATABASE_URL
 npm install
 node seed.js            # cria tabelas e popula dados de demo
