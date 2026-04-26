@@ -1,109 +1,83 @@
 # Café Aroma — Sistema de Gestão para Cafeteria
 
-Sistema de ponto de venda (PDV) e gestão operacional completo. Gerencia comandas, caixa, produtos, compras, fornecedores e relatórios financeiros.
+> PDV e gestão operacional completo: comandas, caixa, produtos, compras, fornecedores e relatórios financeiros.
 
-## Demo online
-
-**[cafe-aroma-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
-
-> **Usuário:** `demo` | **Senha:** `Demo@1234`
-
-O usuário demo tem acesso de leitura a todas as telas. Para testar escrita, suba o projeto localmente com o usuário `admin`.
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
 
 ---
 
-## Stack
+## Demo ao vivo
 
-| Camada | Tecnologia |
-|--------|-----------|
-| Frontend | HTML5, CSS3, JavaScript Vanilla (SPA) |
-| Backend | Node.js + Express.js |
-| Banco de dados | PostgreSQL (Supabase) |
-| Auth | JWT + bcrypt |
-| Deploy | Vercel |
+**[cafe-leal-portfolio.vercel.app](https://cafe-leal-portfolio.vercel.app)**
+
+| Usuário | Senha | Acesso |
+|---------|-------|--------|
+| `demo` | `Demo@1234` | Todas as telas (somente leitura) |
+
+> Para testar escrita, rode localmente com o usuário `admin`.
+
+---
 
 ## Funcionalidades
 
-- **Comandas** — abertura, edição de itens, divisão de conta, desconto gerencial, fechamento com forma de pagamento e troco
-- **Caixa** — abertura com fundo inicial, fechamento com conferência física, resumo por forma de pagamento
-- **Produtos e Categorias** — CRUD completo, soft delete
-- **Compras e Fornecedores** — registro de notas fiscais, controle de pagamento, upload de foto
-- **Saídas de caixa** — lançamentos avulsos
-- **Relatórios** — ticket médio, horário de pico, produtos mais vendidos
-- **Usuários** — três perfis: Gerente, Atendente e Financeiro
+| Módulo | Destaques |
+|--------|-----------|
+| **Comandas** | Abertura, edição de itens, divisão de conta, desconto gerencial, fechamento com forma de pagamento e troco |
+| **Caixa** | Abertura com fundo inicial, fechamento com conferência física, resumo por forma de pagamento |
+| **Produtos** | CRUD completo com soft delete, organizado por categorias |
+| **Compras** | Registro de NF, controle de pagamento, upload de foto, gestão de fornecedores |
+| **Relatórios** | Ticket médio, horário de pico, produtos mais vendidos |
+| **Usuários** | Três perfis com permissões distintas: Gerente, Atendente e Financeiro |
+
+---
+
+## Arquitetura
+
+```
+Frontend (SPA vanilla) ──► Express REST API ──► PostgreSQL (Supabase)
+```
+
+- **SPA sem framework** — navegação entre telas via JS puro, sem reload de página
+- **REST API** com rotas separadas por domínio (`/api/comandas`, `/api/caixa`, `/api/produtos`…)
+- **Middleware chain**: Helmet → Rate Limit → JWT Auth → Role Check → Demo Guard → Handler
+
+---
+
+## Segurança
+
+- JWT com expiração de 8h e validação de comprimento mínimo (32 chars)
+- Rate limiting no login e na verificação de senha gerencial (5 tentativas / 15 min)
+- bcrypt com salt 10 — senhas exigem mínimo 8 chars, maiúscula, número e especial
+- Controle de acesso por perfil em todas as rotas sensíveis
+- Demo guard: bloqueia qualquer escrita (`POST/PUT/DELETE`) no ambiente de demo
+- Helmet.js para headers HTTP (CSP, X-Frame-Options, HSTS, etc.)
+- Reset automático diário via GitHub Actions para proteger o banco gratuito (Supabase free tier)
 
 ---
 
 ## Setup local
 
-**Pré-requisitos:** Node.js v14+ e PostgreSQL instalado localmente.
+**Pré-requisitos:** Node.js 14+ e acesso a um PostgreSQL (local ou Supabase).
 
 ```bash
-# 1. Clonar e instalar dependências
-git clone https://github.com/wleal-dev/cafe-aroma-portfolio
-cd cafe-aroma-portfolio/backend
+git clone https://github.com/wleal-dev/cafe-leal-portfolio
+cd cafe-leal-portfolio/backend
+cp .env.example .env    # ajuste DATABASE_URL
 npm install
-
-# 2. Configurar variáveis de ambiente
-cp .env.example .env
-# Edite .env e ajuste DATABASE_URL para o seu PostgreSQL local
-
-# 3. Criar tabelas e popular dados de demonstração
-node seed.js
-
-# 4. Iniciar o servidor
-npm start          # produção
-npm run dev        # desenvolvimento (hot reload)
+node seed.js            # cria tabelas e popula dados de demo
+npm run dev             # http://localhost:3000
 ```
-
-Acesse `http://localhost:3000`.
 
 | Usuário | Senha | Perfil |
 |---------|-------|--------|
+| `admin` | `Admin@1234` | Gerente (acesso total) |
+| `caixa` | `Caixa@1234` | Atendente |
 | `demo`  | `Demo@1234`  | Gerente (somente leitura) |
-
----
-
-## Deploy online (Supabase + Vercel)
-
-### 1. Banco de dados — Supabase
-
-1. Crie um projeto em [supabase.com](https://supabase.com) (free tier)
-2. Vá em **Project Settings → Database → URI** e copie a connection string
-3. Execute o seed apontando para o Supabase:
-   ```bash
-   DATABASE_URL="postgresql://postgres:<senha>@db.<projeto>.supabase.co:5432/postgres" \
-   SENHA_ADMIN=Admin@1234 SENHA_CAIXA=Caixa@1234 \
-   node backend/seed.js
-   ```
-
-### 2. Servidor — Vercel
-
-1. Conecte o repositório no [vercel.com](https://vercel.com)
-2. Adicione as variáveis de ambiente no painel do projeto:
-
-| Variável | Valor |
-|----------|-------|
-| `DATABASE_URL` | Connection string do Supabase |
-| `JWT_SECRET` | Secret aleatório de 32+ caracteres |
-| `SENHA_ADMIN` | Senha do admin |
-| `SENHA_CAIXA` | Senha do caixa |
-| `RESET_SECRET` | Secret para o endpoint de reset |
-
-3. Faça push — Vercel faz o deploy automaticamente.
-
-### 3. Reset automático (GitHub Actions)
-
-Para evitar que testes de usuários encham o banco gratuito, o workflow `.github/workflows/reset-demo.yml` reseta o banco diariamente às 3h BRT.
-
-Configure os seguintes secrets no repositório GitHub (**Settings → Secrets → Actions**):
-
-| Secret | Valor |
-|--------|-------|
-| `VERCEL_URL` | URL do seu deploy (ex: `https://cafe-aroma.vercel.app`) |
-| `RESET_SECRET` | Mesmo valor da env var `RESET_SECRET` do Vercel |
-
-O workflow também pode ser disparado manualmente pela aba **Actions** do GitHub.
 
 ---
 
@@ -120,24 +94,49 @@ O workflow também pode ser disparado manualmente pela aba **Actions** do GitHub
     ├── server.js               # Entry point Express
     ├── db.js                   # Pool de conexão PostgreSQL
     ├── schema.sql              # Schema do banco
-    ├── seed.js                 # Popular banco com dados de demonstração
-    ├── reset-db.js             # Limpar banco (mantém schema)
+    ├── seed.js                 # Popula banco com dados de demonstração
     ├── middleware/
     │   ├── auth.js             # Verificação JWT
     │   ├── checkRole.js        # Controle de acesso por perfil
-    │   └── demoGuard.js        # Bloqueia escrita para usuário demo
-    └── routes/                 # auth, admin, produtos, comandas, caixa...
+    │   └── demoGuard.js        # Bloqueia escrita no modo demo
+    └── routes/                 # auth, admin, produtos, comandas, caixa…
 ```
 
 ---
 
-## Segurança
+<details>
+<summary><strong>Deploy online (Supabase + Vercel)</strong></summary>
 
-- **JWT** com expiração de 8h e validação de comprimento mínimo (32 chars)
-- **Rate limiting** no login: 5 tentativas por 15 minutos
-- **bcrypt** com salt 10 para hashing de senhas (mínimo 8 chars, maiúscula, número e especial)
-- **Controle de acesso por perfil** em todas as rotas sensíveis (Gerente, Atendente, Financeiro)
-- **Demo guard**: usuário `demo` só pode fazer leitura (GET) — qualquer escrita retorna 403
-- **Escape de HTML** no frontend para prevenção de XSS
-- **Helmet.js** para headers de segurança (CSP, X-Frame-Options, etc.)
-- **Reset diário** via GitHub Actions para manter o banco de demo limpo
+### 1. Banco — Supabase
+
+1. Crie um projeto em [supabase.com](https://supabase.com) (free tier)
+2. Copie a connection string em **Project Settings → Database → URI**
+3. Rode o seed apontando para o Supabase:
+   ```bash
+   DATABASE_URL="postgresql://postgres:<senha>@db.<projeto>.supabase.co:5432/postgres" \
+   SENHA_ADMIN=Admin@1234 SENHA_CAIXA=Caixa@1234 \
+   node backend/seed.js
+   ```
+
+### 2. Servidor — Vercel
+
+1. Conecte o repositório no [vercel.com](https://vercel.com)
+2. Configure as variáveis de ambiente:
+
+| Variável | Descrição |
+|----------|-----------|
+| `DATABASE_URL` | Connection string do Supabase |
+| `JWT_SECRET` | Secret aleatório (32+ chars) |
+| `SENHA_ADMIN` | Senha do admin |
+| `SENHA_CAIXA` | Senha do caixa |
+| `RESET_SECRET` | Secret para o endpoint de reset |
+| `DEMO_MODE` | `true` para bloquear escrita de todos os usuários |
+
+3. Faça push — Vercel realiza o deploy automaticamente.
+
+### 3. Reset automático
+
+O workflow `.github/workflows/reset-demo.yml` reseta o banco diariamente às 3h BRT.
+Configure o secret `RESET_SECRET` em **Settings → Secrets → Actions** do repositório.
+
+</details>
