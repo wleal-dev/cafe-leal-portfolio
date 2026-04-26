@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Café Aroma — Sistema</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <div id="loading-bar"></div>
+
+  <!-- =================== LOGIN =================== -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <img src="iconeCafeAroma.png" alt="Café Aroma" class="login-logo">
+      <div class="login-field">
+        <label>Usuário</label>
+        <input type="text" id="login-user" placeholder="demo" autocomplete="off"
+          onkeydown="if(event.key==='Enter') document.getElementById('login-pass').focus()">
+      </div>
+      <div class="login-field">
+        <label>Senha</label>
+        <input type="password" id="login-pass" placeholder="Demo@1234" onkeydown="if(event.key==='Enter') fazerLogin()">
+      </div>
+      <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- =================== APP =================== -->
+  <div class="app" id="app">
+    <header class="mobile-header" id="mobile-header">
+      <button class="hamburger-btn" id="btn-hamburger" onclick="toggleSidebarMobile()">
+        <span></span><span></span><span></span>
+      </button>
+      <img src="iconeCafeAroma.png" alt="Café Aroma" class="mobile-header-logo">
+    </header>
+
+    <div class="app-layout">
+      <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebarMobile()"></div>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <img src="iconeCafeAroma.png" alt="Café Aroma" class="sidebar-logo-img">
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="tab active" id="tab-nova-comanda" onclick="showPage('nova-comanda', this)">
+            <span class="nav-icon">＋</span> Nova Comanda
+          </div>
+          <div class="tab" id="tab-comandas" onclick="showPage('comandas', this)">
+            <span class="nav-icon">◫</span> Comandas Abertas
+            <span class="tab-badge" id="badge-abertas">0</span>
+          </div>
+          <div class="tab" id="tab-produtos" onclick="showPage('produtos', this)" style="display:none;">
+            <span class="nav-icon">☰</span> Produtos
+          </div>
+          <div class="tab" id="tab-compras" onclick="showPage('compras', this)" style="display:none;">
+            <span class="nav-icon">📋</span> Compras
+          </div>
+          <div class="tab" id="tab-financeiro" onclick="showPage('financeiro', this)" style="display:none;">
+            <span class="nav-icon">📊</span> Financeiro
+          </div>
+          <div class="tab" id="tab-caixa" onclick="showPage('caixa', this)">
+            <span class="nav-icon">🗂</span> Caixa do Dia
+          </div>
+        </nav>
+
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar" id="user-avatar"></div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="user-display">—</div>
+            <div class="sidebar-user-role" id="user-role">—</div>
+          </div>
+          <button class="btn-logout" onclick="abrirModalMudarSenha()" title="Alterar senha"
+            style="margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg></button>
+          <button class="btn-logout" onclick="fazerLogout()" title="Sair">↩</button>
+        </div>
+      </aside>
+
+      <!-- CONTEÚDO PRINCIPAL -->
+      <main class="main-content">
+
+        <!-- NOVA COMANDA -->
+        <div class="page active" id="page-nova-comanda">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Nova Comanda</h1>
+              <p class="page-subtitle">Selecione os produtos e monte o pedido</p>
+            </div>
+          </div>
+          <div class="comanda-layout-grid">
+            <!-- ESQUERDA: Campos + Produtos -->
+            <div class="card produtos-panel">
+              <div class="form-row" style="margin-bottom:1rem;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Nome do cliente</label>
+                  <input type="text" id="cliente-nome" placeholder="Ex: Ana" autocomplete="off"
+                    onkeypress="handleEnterEmCliente(event)">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Mesa</label>
+                  <input type="text" id="cliente-mesa" placeholder="Selecione a mesa..." autocomplete="off"
+                    list="mesas-list" onkeypress="handleEnterEmMesa(event)">
+                  <datalist id="mesas-list"></datalist>
+                </div>
+              </div>
+              <div id="categoria-pills" class="categoria-pills-wrapper"></div>
+              <div id="produtos-grid" class="produtos-comanda-grid"></div>
+            </div>
+            <!-- DIREITA: Pedido (receipt) -->
+            <div class="order-panel">
+              <div class="order-receipt-header">
+                <span class="order-receipt-id">Pedido atual</span>
+                <span class="order-receipt-count" id="order-item-count">0 itens</span>
+              </div>
+              <div class="order-receipt-body">
+                <div id="form-item-avulso" style="display:none;">
+                  <div class="add-item-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+                    <div style="grid-column: 1 / -1;"><label>Item</label><input type="text" id="item-nome"
+                        placeholder="Ex: Cappuccino" autocomplete="off" onkeypress="handleEnterEmItem(event)"></div>
+                    <div><label>Qtd</label><input type="number" id="item-qty" value="1" min="1"></div>
+                    <div><label>R$</label><input type="number" id="item-preco" placeholder="0,00" step="0.01" min="0"
+                        onkeypress="handleEnterEmItem(event)"></div>
+                    <div style="display:flex; align-items:flex-end;"><button class="btn btn-gold btn-full"
+                        onclick="addItem()" style="height:38px;">＋ Add</button></div>
+                    <div style="grid-column:1 / -1; margin-top:4px;"><label>Observações</label><input type="text"
+                        id="item-nota" placeholder="Ex: Sem açúcar, leite de aveia"
+                        onkeypress="handleEnterEmNota(event)"></div>
+                  </div>
+                </div>
+                <button id="btn-liberar-avulso" class="btn btn-ghost btn-full" onclick="abrirModalSenhaAvulso()"
+                  style="margin-bottom:0.75rem; font-size:13px;">🔒 Item avulso</button>
+                <div class="items-list" id="items-list">
+                  <div class="empty-state">Nenhum item adicionado</div>
+                </div>
+              </div>
+              <div class="order-receipt-footer">
+                <div class="order-total-line">
+                  <span class="order-total-label">Total</span>
+                  <span class="order-total-value" id="total-display">R$ 0,00</span>
+                </div>
+                <button class="btn-cobrar" onclick="abrirComanda()">Abrir Comanda</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMANDAS ABERTAS -->
+        <div class="page" id="page-comandas">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Visão do Salão</h1>
+              <p class="page-subtitle">Gerencie as comandas abertas no salão</p>
+            </div>
+          </div>
+          <div class="toolbar">
+            <input type="text" id="filtro-comandas" placeholder="Buscar por mesa ou cliente..."
+              onkeyup="filtrarComandas()" style="max-width:320px;">
+          </div>
+          <div id="lista-comandas" style="margin-top: 1.5rem;">
+            <div class="empty-state-full">
+              <div class="empty-icon">☕</div>
+              <div class="empty-title">Nenhuma comanda aberta</div>
+              <div class="empty-desc">Abra uma nova comanda para começar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAIXA DO DIA -->
+        <div class="page" id="page-caixa">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Caixa do Dia</h1>
+              <p class="page-subtitle">Acompanhe em tempo real o desempenho das vendas</p>
+            </div>
+          </div>
+
+          <div id="caixa-status-banner" style="margin-bottom:1rem;"></div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-green">💰</div>
+              <div>
+                <div class="stat-value" id="stat-total">R$ 0,00</div>
+                <div class="stat-label">Total vendido</div>
+                <div class="stat-subtext">Hoje</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-blue">◫</div>
+              <div>
+                <div class="stat-value" id="stat-abertas">0</div>
+                <div class="stat-label">Comandas abertas</div>
+                <div class="stat-subtext">Em andamento</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-gold">✓</div>
+              <div>
+                <div class="stat-value" id="stat-fechadas">0</div>
+                <div class="stat-label">Comandas fechadas</div>
+                <div class="stat-subtext">Hoje</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-purple">🎯</div>
+              <div>
+                <div class="stat-value" id="stat-ticket-medio">R$ 0,00</div>
+                <div class="stat-label">Ticket médio</div>
+                <div class="stat-subtext">Por comanda</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="caixa-grid">
+            <div class="card">
+              <div class="card-toolbar">
+                <div class="card-title" style="margin-bottom:0;">Últimas vendas de hoje</div>
+              </div>
+              <div id="historico-list">
+                <div class="empty-state">Nenhuma comanda fechada hoje</div>
+              </div>
+            </div>
+            <div>
+              <div class="card" style="margin-bottom:1rem;">
+                <div class="card-title">Resumo do dia</div>
+                <div id="breakdown-pagamentos"><span style="font-size:13px; color:var(--text-muted);">Nenhuma venda
+                    ainda</span></div>
+                <div class="resumo-total-row">
+                  <span>Total líquido</span>
+                  <strong id="stat-total-resumo">R$ 0,00</strong>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Destaques</div>
+                <div class="mini-stats">
+                  <div class="mini-stat-row">
+                    <span>Hora de pico</span>
+                    <strong id="stat-pico">--</strong>
+                  </div>
+                  <div class="mini-stat-row">
+                    <span>Produto estrela</span>
+                    <strong id="stat-top-produto">--</strong>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- mantidos para compatibilidade com renderRelatorios() -->
+          <div style="display:none;">
+            <div id="relatorio-pico"></div>
+            <div id="relatorio-ranking"></div>
+          </div>
+        </div>
+
+        <!-- page-relatorios mantida vazia para não quebrar referências JS -->
+        <div class="page" id="page-relatorios" style="display:none;"></div>
+
+        <!-- PRODUTOS -->
+        <div class="page" id="page-produtos">
+          <div class="page-header" id="produtos-page-header">
+            <div>
+              <h1 class="page-title">Gestão de Produtos</h1>
+              <p class="page-subtitle">Gerencie seu catálogo de forma simples e eficiente</p>
+            </div>
+            <div class="page-header-actions" id="produtos-header-actions" style="display:none;">
+              <button class="btn btn-ghost btn-sm" onclick="abrirGerenciarCategorias()">📋 Gerenciar Categorias</button>
+              <button class="btn btn-dark btn-sm" onclick="abrirNovoProduto()">＋ Novo Produto</button>
+            </div>
+          </div>
+          <div class="filter-bar" id="produtos-filter-bar" style="display:none;">
+            <input type="text" id="busca-produto" placeholder="Buscar produto..." oninput="renderProdutos()">
+            <select id="filtro-categoria-produto" onchange="renderProdutos()">
+              <option value="">Todas as categorias</option>
+            </select>
+
+          </div>
+          <div class="card" style="margin-top: 1.5rem;">
+            <div id="produtos-list"></div>
+          </div>
+        </div>
+
+        <!-- COMPRAS -->
+        <div class="page" id="page-compras">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Compras e Fornecedores</h1>
+              <p class="page-subtitle">Controle de compras de insumos e fornecedores</p>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <div id="compras-tabs" class="compras-tab">
+              <button class="tab active" onclick="switchTab(this, 'registro')">Registrar Compra</button>
+              <button class="tab" onclick="switchTab(this, 'saida')">Registrar Saída</button>
+              <button class="tab" onclick="switchTab(this, 'fornecedores')">Fornecedores</button>
+            </div>
+          </div>
+          <div id="compras-content"></div>
+        </div>
+
+        <!-- FINANCEIRO -->
+        <div class="page" id="page-financeiro">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Financeiro</h1>
+              <p class="page-subtitle">Resumo financeiro e relatórios</p>
+            </div>
+          </div>
+          <div id="financeiro-content"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- =================== MODAIS =================== -->
+  <div class="modal-overlay" id="modal-fechar">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Fechar comanda</h3>
+        <p id="modal-desc">Confirmar pagamento</p>
+      </div>
+      <div class="modal-body">
+        <div class="modal-total" id="modal-total">R$ 0,00</div>
+
+        <div class="desconto-box">
+          <div class="desconto-box-title">Desconto (Gerente)</div>
+          <div style="display:flex; gap:8px; margin-bottom:0.75rem;">
+            <button id="toggle-desc-percent" class="btn btn-ghost" style="flex:1; padding:0.5rem;"
+              onclick="definirTipoDesconto('percent')">% Porcentagem</button>
+            <button id="toggle-desc-valor" class="btn btn-ghost" style="flex:1; padding:0.5rem;"
+              onclick="definirTipoDesconto('valor')">R$ Valor</button>
+          </div>
+          <div style="margin-bottom:0.5rem;">
+            <label style="font-size:11px;" id="label-desc-input">Valor (%)</label>
+            <input type="number" id="desc-input" placeholder="0" min="0" step="0.1" oninput="verificarDesconto()"
+              style="width:100%;">
+          </div>
+          <div id="desc-preview" style="font-size:11px; color:var(--text-muted); margin-bottom:0.5rem; display:none;">
+            ≋ Desconto: <strong id="desc-preview-valor">R$ 0,00</strong>
+          </div>
+          <button id="btn-aplicar-desconto" class="btn btn-gold btn-full" onclick="abrirModalSenhaDesconto()" disabled
+            style="opacity:0.5; cursor:not-allowed; margin-bottom:0.75rem;">🔒 Aplicar Desconto</button>
+          <div style="font-size:13px; font-weight:600; color:var(--text-primary);">
+            Desconto: <span id="desconto-aplicado">R$ 0,00</span>
+          </div>
+          <div
+            style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--card-border);">
+            <div style="font-size:12px; color:var(--text-muted);">Subtotal: <span id="desc-subtotal">R$ 0,00</span>
+            </div>
+            <div>Total final: <span id="desc-total-final" class="total-final-destaque">R$ 0,00</span></div>
+          </div>
+        </div>
+
+        <div style="margin:1.5rem 0;">
+          <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:0.75rem;">Forma de
+            pagamento *</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button class="payment-btn" onclick="selecionarPagamento(this, 'Dinheiro')">💵 Dinheiro</button>
+            <button class="payment-btn" onclick="selecionarPagamento(this, 'Débito')">🏦 Débito</button>
+            <button class="payment-btn" onclick="selecionarPagamento(this, 'Crédito')">💳 Crédito</button>
+            <button class="payment-btn" onclick="selecionarPagamento(this, 'Pix')">📱 Pix</button>
+          </div>
+        </div>
+
+        <div id="troco-box" style="display:none; margin-bottom:1.25rem;">
+          <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:0.5rem;">Valor recebido em
+            dinheiro (R$)</div>
+          <input type="number" id="valor-recebido" min="0" step="0.01" placeholder="Ex: 50.00" oninput="calcularTroco()"
+            style="width:100%; font-size:18px;">
+          <div id="troco-resultado" style="display:none; margin-top:0.75rem; padding:0.875rem;
+             border-radius:8px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.35);
+             text-align:center;">
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">Troco</div>
+            <div id="troco-valor" style="font-size:26px; font-weight:800; color:var(--green);">R$ 0,00</div>
+          </div>
+          <div id="troco-insuficiente" style="display:none; margin-top:0.5rem; font-size:12px;
+             color:#ef4444; text-align:center; font-weight:600;">
+            ⚠ Valor insuficiente para cobrir R$ <span id="troco-total-ref">0,00</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+          <button class="btn btn-gold" onclick="confirmarFechamento()">✓ Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-dividir">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <h3>Dividir comanda</h3>
+        <p id="modal-dividir-desc">Escolha o tipo de divisão</p>
+      </div>
+      <div class="modal-body">
+        <div class="split-group" style="display:grid; gap:8px; margin-bottom:1rem;">
+          <label><input type="radio" name="split-mode" value="equal" checked onchange="renderSplitModal()"> Divisão
+            igual</label>
+          <label><input type="radio" name="split-mode" value="items" onchange="renderSplitModal()"> Divisão por
+            itens</label>
+        </div>
+        <div id="split-equal" class="split-group">
+          <label>Número de pessoas</label>
+          <input type="number" id="split-people" min="2" value="2" oninput="updateSplitEqual()">
+          <div style="margin-top:1rem; font-size:14px; color:var(--text-muted);">Cada pessoa paga: <strong
+              id="split-share">R$ 0,00</strong></div>
+        </div>
+        <div id="split-items" class="split-group" style="display:none;">
+          <label>Selecione os itens para fechar</label>
+          <div class="split-items" id="split-items-list"></div>
+          <div style="margin-top:1rem; font-size:14px; color:var(--text-muted);">Subtotal selecionado: <strong
+              id="split-subtotal">R$ 0,00</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharSplitModal()">Cancelar</button>
+          <button class="btn btn-gold" id="split-confirm-btn" onclick="confirmarSplit()">Aplicar divisão</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-editar-item">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3>Editar item</h3>
+        <p>Atualize a quantidade ou observação</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label>Item</label><input type="text" id="edit-item-nome" readonly
+            style="background:var(--bg); color:var(--text-muted); cursor:not-allowed;"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Qtd</label><input type="number" id="edit-item-qty" min="1"></div>
+          <div class="form-group"><label>R$ (por unidade)</label><input type="number" id="edit-item-preco" step="0.01"
+              min="0" readonly style="background:var(--bg); color:var(--text-muted); cursor:not-allowed;"></div>
+        </div>
+        <div class="form-group"><label>Total</label><input type="text" id="edit-item-total" readonly
+            style="background:var(--bg); color:var(--text-muted); cursor:not-allowed; font-weight:600;"></div>
+        <div class="form-group"><label>Observações</label><input type="text" id="edit-item-nota"
+            placeholder="Ex: Sem açúcar, leite de aveia"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharEdicaoItem()">Cancelar</button>
+          <button class="btn btn-gold" onclick="salvarEdicaoItem()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-confirmar">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Cancelar comanda</h3>
+        <p>Esta ação não pode ser desfeita</p>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px; color:var(--text-secondary); margin-bottom:1rem; text-align:center;">Tem certeza que
+          deseja cancelar esta comanda?</p>
+        <div class="form-group">
+          <label>Motivo do cancelamento (opcional)</label>
+          <input type="text" id="motivo-cancelamento" placeholder="Ex: Cliente desistiu, erro no pedido...">
+        </div>
+        <div class="form-group" id="cancelamento-senha-field">
+          <label>Senha do gerente</label>
+          <input type="password" id="senha-cancelamento" placeholder="Digite a senha do gerente">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharConfirmacaoCancelamento()">Manter</button>
+          <button class="btn btn-danger" onclick="confirmarCancelamento()">Cancelar comanda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-senha-avulso">
+    <div class="modal" style="max-width:380px;">
+      <div class="modal-header">
+        <h3>Item avulso</h3>
+        <p>Digite a senha da gerente para liberar</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Senha da Gerente</label>
+          <input type="password" id="senha-gerente-avulso" placeholder="Digite a senha" autocomplete="off"
+            onkeypress="if(event.key==='Enter') confirmarSenhaAvulso()">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharModalSenhaAvulso()">Cancelar</button>
+          <button class="btn btn-gold" onclick="confirmarSenhaAvulso()">✓ Liberar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-senha-desconto">
+    <div class="modal" style="max-width:380px;">
+      <div class="modal-header">
+        <h3>Aplicar Desconto</h3>
+        <p>Digite a senha do gerente</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Senha do Gerente</label>
+          <input type="password" id="senha-gerente-desconto" placeholder="••••••••" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharModalSenhaDesconto()">Cancelar</button>
+          <button class="btn btn-gold" onclick="confirmarDescontoComSenha()">✓ Aplicar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-editar-produto">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Editar produto</h3>
+        <p>Altere os dados do produto</p>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-prod-id">
+        <div class="form-group"><label>Nome</label><input type="text" id="edit-prod-nome"></div>
+        <div class="form-group"><label>Preço (R$)</label><input type="number" id="edit-prod-preco" step="0.01" min="0">
+        </div>
+        <div class="form-group"><label>Categoria</label><select id="edit-prod-categoria"></select></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-editar-produto').classList.remove('open')">Cancelar</button>
+          <button class="btn btn-gold" onclick="salvarEdicaoProduto()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-novo-produto">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Novo produto</h3>
+        <p>Cadastre um produto no catálogo</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label>Nome</label><input type="text" id="produto-nome" placeholder="Ex: Cappuccino">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Preço (R$)</label><input type="number" id="produto-preco" placeholder="0,00"
+              step="0.01" min="0"></div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="produto-categoria">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-novo-produto').classList.remove('open')">Cancelar</button>
+          <button class="btn btn-gold" onclick="adicionarProduto()">＋ Cadastrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-editar-fornecedor">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Editar fornecedor</h3>
+        <p>Altere os dados do fornecedor</p>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-forn-id">
+        <div class="form-group"><label>Nome</label><input type="text" id="edit-forn-nome"></div>
+        <div class="form-group"><label>CNPJ</label><input type="text" id="edit-forn-cnpj"></div>
+        <div class="form-group"><label>Tipo</label><select id="edit-forn-tipo">
+            <option>Mercado</option>
+            <option>Fornecedor</option>
+            <option>Outro</option>
+          </select></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-editar-fornecedor').classList.remove('open')">Cancelar</button>
+          <button class="btn btn-gold" onclick="salvarEdicaoFornecedor()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-editar-compra">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Editar compra</h3>
+        <p>Altere os dados da compra</p>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-compra-id">
+        <div class="form-row">
+          <div class="form-group"><label>Data</label><input type="date" id="edit-compra-data"></div>
+          <div class="form-group"><label>Fornecedor</label><input type="text" id="edit-compra-fornecedor"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Valor (R$)</label><input type="number" id="edit-compra-valor" step="0.01"
+              min="0"></div>
+          <div class="form-group"><label>Status</label><select id="edit-compra-status">
+              <option>Pago</option>
+              <option>A pagar</option>
+            </select></div>
+        </div>
+        <div class="form-group"><label>Categoria</label><select id="edit-compra-categoria">
+            <option>Insumos</option>
+            <option>Contas Fixas</option>
+            <option>Fornecedores</option>
+            <option>Retirada de Caixa</option>
+            <option>Outros</option>
+          </select></div>
+        <div class="form-group"><label>CNPJ</label><input type="text" id="edit-compra-cnpj"></div>
+        <div class="form-group"><label>NF/Cupom</label><input type="text" id="edit-compra-nf"></div>
+        <div class="form-group"><label>Itens</label><input type="text" id="edit-compra-itens"></div>
+        <div class="form-group"><label>Observações</label><input type="text" id="edit-compra-obs"></div>
+        <div class="form-group"><label>Forma de pagamento</label><select id="edit-compra-pagamento">
+            <option>Dinheiro</option>
+            <option>Débito</option>
+            <option>Crédito</option>
+            <option>Pix</option>
+          </select></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-editar-compra').classList.remove('open')">Cancelar</button>
+          <button class="btn btn-gold" onclick="salvarEdicaoCompra()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-gerenciar-categorias">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Gerenciar Categorias</h3>
+        <p>Crie, edite ou exclua categorias</p>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:8px; margin-bottom:1rem;">
+          <input type="text" id="nova-categoria-nome" placeholder="Nome da nova categoria" style="flex:1;">
+          <button class="btn btn-dark" onclick="adicionarCategoriaList()">＋ Adicionar</button>
+        </div>
+        <div id="lista-categorias-gerenciar"
+          style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+        <div class="modal-actions">
+          <button class="btn btn-gold"
+            onclick="document.getElementById('modal-gerenciar-categorias').classList.remove('open')">Concluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- MODAL: Abertura de Caixa -->
+  <div class="modal-overlay" id="modal-abertura-caixa">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Abrir Caixa</h3>
+        <p>Informe o troco inicial em dinheiro</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Troco inicial (R$)</label>
+          <input type="number" id="abertura-valor-inicial" min="0" step="0.01" placeholder="Ex: 200.00"
+            style="width:100%; font-size:18px; margin-top:0.5rem;">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-abertura-caixa').classList.remove('open')">
+            Cancelar
+          </button>
+          <button class="btn btn-gold" onclick="confirmarAberturaCaixa()">Abrir Caixa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Fechamento de Caixa -->
+  <div class="modal-overlay" id="modal-fechamento-caixa">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3>Fechar Caixa</h3>
+        <p>Confira os totais e informe o valor contado</p>
+      </div>
+      <div class="modal-body">
+        <div id="fechamento-resumo" style="margin-bottom:1.25rem;">
+          <div style="text-align:center; color:var(--text-muted); padding:1rem;">Carregando resumo...</div>
+        </div>
+        <div class="form-group">
+          <label style="font-weight:700; font-size:13px;">Valor contado no caixa físico (R$)</label>
+          <input type="number" id="fechamento-total-contado" min="0" step="0.01"
+            placeholder="Digite o valor físico em caixa" style="width:100%; font-size:18px; margin-top:0.5rem;"
+            oninput="calcularDiferencaFechamento()">
+        </div>
+        <div id="fechamento-diferenca-preview" style="font-size:13px; font-weight:700; margin:0.75rem 0; padding:0.75rem;
+                  border-radius:8px; display:none; text-align:center;">
+          <span id="fechamento-diferenca-valor"></span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost"
+            onclick="document.getElementById('modal-fechamento-caixa').classList.remove('open')">
+            Cancelar
+          </button>
+          <button class="btn btn-danger" onclick="confirmarFechamentoCaixa()">Fechar Caixa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-mudar-senha">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Alterar senha</h3>
+        <p>Informe sua senha atual e a nova senha</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Senha atual</label>
+          <input type="password" id="ms-senha-atual" autocomplete="current-password">
+        </div>
+        <div class="form-group">
+          <label>Nova senha</label>
+          <input type="password" id="ms-nova-senha" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="ms-confirma-senha" autocomplete="new-password">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="fecharModalMudarSenha()">Cancelar</button>
+          <button class="btn btn-gold" onclick="salvarNovaSenha()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

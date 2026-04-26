@@ -1,0 +1,15 @@
+name: Reset Demo DB
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 03:00 BRT (UTC-3)
+  workflow_dispatch:      # permite rodar manualmente no painel do GitHub
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reset endpoint
+        run: |
+          curl -sf -X POST "https://cafe-leal-portfolio.vercel.app/api/admin/reset" \
+            -H "x-reset-secret: ${{ secrets.RESET_SECRET }}"
