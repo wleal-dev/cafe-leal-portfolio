@@ -140,7 +140,7 @@ body {
 .login-logo {
   width: 100%;
   height: auto;
-  max-height: 150px;
+  max-height: 180px;
   object-fit: contain;
   display: block;
   margin-bottom: 2rem;
@@ -264,7 +264,7 @@ body {
 
 .sidebar-logo-img {
   width: 100%;
-  max-width: 130px;
+  max-width: 155px;
   height: auto;
   object-fit: contain;
   /* Mesmo filtro do logo do login */
@@ -1396,7 +1396,7 @@ select:focus {
   }
 
   .mobile-header-logo {
-    height: 32px;
+    height: 40px;
     filter: brightness(0) saturate(100%) invert(72%) sepia(38%) saturate(380%) hue-rotate(8deg) brightness(78%);
   }
 
