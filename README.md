@@ -4,7 +4,7 @@ Sistema de ponto de venda (PDV) e gestão operacional completo. Gerencia comanda
 
 ## Demo online
 
-**[cafe-leal-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
+**[cafe-aroma-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
 
 > **Usuário:** `demo` | **Senha:** `Demo@1234`
 
@@ -40,8 +40,8 @@ O usuário demo tem acesso de leitura a todas as telas. Para testar escrita, sub
 
 ```bash
 # 1. Clonar e instalar dependências
-git clone https://github.com/wleal-dev/cafe-leal-portfolio
-cd cafe-leal-portfolio/backend
+git clone https://github.com/wleal-dev/cafe-aroma-portfolio
+cd cafe-aroma-portfolio/backend
 npm install
 
 # 2. Configurar variáveis de ambiente
@@ -100,7 +100,7 @@ Configure os seguintes secrets no repositório GitHub (**Settings → Secrets �
 
 | Secret | Valor |
 |--------|-------|
-| `VERCEL_URL` | URL do seu deploy (ex: `https://cafe-leal.vercel.app`) |
+| `VERCEL_URL` | URL do seu deploy (ex: `https://cafe-aroma.vercel.app`) |
 | `RESET_SECRET` | Mesmo valor da env var `RESET_SECRET` do Vercel |
 
 O workflow também pode ser disparado manualmente pela aba **Actions** do GitHub.
