@@ -4,7 +4,7 @@ Sistema de ponto de venda (PDV) e gestão operacional completo. Gerencia comanda
 
 ## Demo online
 
-**[cafe-leal-portfolio.vercel.app](https://cafe-leal-portfolio.vercel.app)**
+**[cafe-leal-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
 
 > **Usuário:** `demo` | **Senha:** `Demo@1234`
 
