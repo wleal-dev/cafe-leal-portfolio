@@ -23,6 +23,22 @@
 
 ---
 
+## Screenshots
+
+| Login | Comandas |
+|:-----:|:--------:|
+| ![Tela de login](docs/screenshots/login.png) | ![Visão do Salão — comandas abertas](docs/screenshots/comandas.png) |
+
+| Produtos | Caixa do Dia |
+|:--------:|:------------:|
+| ![Gestão de produtos](docs/screenshots/produtos.png) | ![Caixa do Dia com resumo de vendas](docs/screenshots/caixa.png) |
+
+<p align="center">
+  <img src="docs/screenshots/financeiro.png" alt="Módulo Financeiro" width="80%">
+</p>
+
+---
+
 ## Funcionalidades
 
 | Módulo | Destaques |
