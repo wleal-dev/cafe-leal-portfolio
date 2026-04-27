@@ -11,16 +11,6 @@
 
 ---
 
-## Demo ao vivo
-
-**[cafe-aroma-portfolio.vercel.app](https://cafe-aroma-portfolio.vercel.app)**
-
-| Usuário | Senha | Acesso |
-|---------|-------|--------|
-| `demo` | `Demo@1234` | Todas as telas (somente leitura) |
-
-> Para testar escrita, rode localmente com o usuário `admin`.
-
 ![Tela de login com glassmorphism e logo do Café Aroma](docs/screenshots/login.png)
 
 ---
