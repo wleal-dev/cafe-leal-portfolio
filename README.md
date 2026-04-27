@@ -21,21 +21,7 @@
 
 > Para testar escrita, rode localmente com o usuário `admin`.
 
----
-
-## Screenshots
-
-| Login | Comandas |
-|:-----:|:--------:|
-| ![Tela de login](docs/screenshots/login.png) | ![Visão do Salão — comandas abertas](docs/screenshots/comandas.png) |
-
-| Produtos | Caixa do Dia |
-|:--------:|:------------:|
-| ![Gestão de produtos](docs/screenshots/produtos.png) | ![Caixa do Dia com resumo de vendas](docs/screenshots/caixa.png) |
-
-<p align="center">
-  <img src="docs/screenshots/financeiro.png" alt="Módulo Financeiro" width="80%">
-</p>
+![Tela de login com glassmorphism e logo do Café Aroma](docs/screenshots/login.png)
 
 ---
 
@@ -49,6 +35,22 @@
 | **Compras** | Registro de NF, controle de pagamento, upload de foto, gestão de fornecedores |
 | **Relatórios** | Ticket médio, horário de pico, produtos mais vendidos |
 | **Usuários** | Três perfis com permissões distintas: Gerente, Atendente e Financeiro |
+
+**Visão do Salão** — comandas abertas por mesa, com itens, totais e ações em tempo real:
+
+![Visão do Salão com comandas abertas por mesa](docs/screenshots/comandas.png)
+
+**Gestão de Produtos** — catálogo com filtro por categoria e CRUD inline:
+
+![Tela de gestão de produtos com lista e filtros](docs/screenshots/produtos.png)
+
+**Caixa do Dia** — dashboard em tempo real com ticket médio, formas de pagamento e últimas vendas:
+
+![Caixa do Dia com resumo de vendas e últimas comandas](docs/screenshots/caixa.png)
+
+**Financeiro** — resumo mensal/semanal de entradas, saídas e exportação para CSV:
+
+![Módulo financeiro com resumo de receitas e exportação CSV](docs/screenshots/financeiro.png)
 
 ---
 
